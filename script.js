@@ -1,3 +1,8 @@
+// ===== Настройки =====
+// Ссылка на веб-приложение Google Apps Script, которое записывает заказы в таблицу.
+// Как получить — см. google-apps-script.gs. Пока пусто, заказы никуда не отправляются.
+const ORDERS_URL = 'https://script.google.com/macros/s/AKfycbxmoTthG3lhZXyPZLzslCfEsmRC_3mYBFxz50ZwIEhM-FNedAzCa9P4GBbPN8clpfhDQw/exec';
+
 // ===== Данные =====
 const CDN = 'https://static.tildacdn.com/';
 const OPTIM = 'https://optim.tildacdn.com/';
@@ -239,8 +244,39 @@ $('#drawerAction').addEventListener('click', () => {
     if (bad) ok = false;
   });
   if (!ok) return toast('Заполните отмеченные поля');
+  sendOrder();
+});
 
-  // Здесь заказ нужно отправить на сервер / в Telegram / на почту
+async function sendOrder() {
+  const btn = $('#drawerAction');
+  const { sum } = totals();
+  const order = {
+    name: form.name.value.trim(),
+    phone: form.phone.value.trim(),
+    mode: isDelivery() ? 'Доставка' : 'Самовывоз',
+    place: form.place.value,
+    address: isDelivery() ? form.address.value.trim() : '',
+    items: [...cart].map(([id, q]) => `${byId[id].name} × ${q}`).join(', '),
+    total: sum,
+    comment: form.comment.value.trim(),
+  };
+
+  if (!ORDERS_URL) {
+    console.warn('ORDERS_URL не задан — заказ не отправлен в таблицу', order);
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Отправляем…';
+    try {
+      // text/plain + no-cors — Google Apps Script принимает такой запрос без CORS-проверки
+      await fetch(ORDERS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(order) });
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = 'Подтвердить заказ';
+      return toast('Не удалось отправить заказ. Проверьте интернет или позвоните нам');
+    }
+    btn.disabled = false;
+  }
+
   cart.clear();
   saveCart();
   $$('[data-ctrl]').forEach((el) => (el.innerHTML = controlHTML(el.dataset.ctrl)));
@@ -248,7 +284,7 @@ $('#drawerAction').addEventListener('click', () => {
   $('#addressField').hidden = false;
   renderCart();
   setStep('success');
-});
+}
 form.addEventListener('input', (e) => e.target.closest('.field')?.classList.remove('is-invalid'));
 
 // ===== Уведомление =====
