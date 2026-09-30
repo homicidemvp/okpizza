@@ -1,7 +1,7 @@
 // ===== Настройки =====
 // Ссылка на веб-приложение Google Apps Script, которое записывает заказы в таблицу.
 // Как получить — см. google-apps-script.gs. Пока пусто, заказы никуда не отправляются.
-const ORDERS_URL = 'https://script.google.com/macros/s/AKfycby7bSgaEVA4WQz3TRgzOpH8iaG6lhuOc52--lTYvBbmR-dV0R3QNOUOo8S0m23217RFt3qMGQ/exec';
+const ORDERS_URL = 'https://script.google.com/macros/s/AKfycby7bSgaEVA4WQz3TRgzOpH8iaG6lhuOc52--lTYvBbmR-dV0R3QNOUOo8S0m7RFt3qMGQ/exec';
 
 // ===== Данные =====
 const CDN = 'https://static.tildacdn.com/';
